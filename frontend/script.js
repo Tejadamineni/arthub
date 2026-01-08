@@ -11,7 +11,7 @@ if (exploreBtn) {
 // Fetch artworks from backend
 async function loadArtworks() {
     try {
-        const res = await fetch("http://localhost:5000/api/art/all");
+        const res = await fetch("https://arthub-backend-gbe7.onrender.com/api/art/all");
         const artworks = await res.json();
 
         galleryGrid.innerHTML = ""; // clear existing
@@ -21,7 +21,7 @@ async function loadArtworks() {
             card.className = "art-card";
 
             card.innerHTML = `
-                <img src="http://localhost:5000/${art.image_url}" alt="${art.title}">
+                <img src="https://arthub-backend-gbe7.onrender.com/${art.image_url}" alt="${art.title}">
                 <h3>${art.title}</h3>
                 <p>${art.description}</p>
             `;
