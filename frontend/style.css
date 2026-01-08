@@ -1,0 +1,116 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+}
+
+body {
+    background-color: #0f0f0f;
+    color: white;
+}
+
+/* NAVBAR */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background-color: #141414;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.logo {
+    font-size: 26px;
+    font-weight: bold;
+    color: #ff4d4d;
+}
+
+.nav-links a {
+    margin-left: 20px;
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+}
+
+.nav-links a:hover {
+    color: #ff4d4d;
+}
+
+/* HERO */
+.hero {
+    height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(to right, #1a1a1a, #0f0f0f);
+}
+
+.hero h1 {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.hero p {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #cccccc;
+}
+
+.hero button {
+    padding: 12px 30px;
+    border: none;
+    background-color: #ff4d4d;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 25px;
+}
+
+.hero button:hover {
+    background-color: #ff2e2e;
+}
+
+/* GALLERY */
+.gallery-section {
+    padding: 40px;
+}
+
+.gallery-section h2 {
+    margin-bottom: 20px;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.art-card {
+    background-color: #1c1c1c;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s;
+}
+
+.art-card:hover {
+    transform: scale(1.03);
+}
+
+.art-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+}
+
+.art-card h3 {
+    margin: 10px;
+}
+
+.art-card p {
+    margin: 0 10px 10px;
+    color: #bbbbbb;
+    font-size: 14px;
+}

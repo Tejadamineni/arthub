@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Arts - ArtHub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="navbar">
+    <div class="logo">ArtHub</div>
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+    </div>
+</div>
+
+<div class="gallery-section">
+    <h2>My Uploaded Arts</h2>
+    <div class="gallery-grid" id="myArtsGrid"></div>
+</div>
+
+<script>
+    const user = JSON.parse(localStorage.getItem("user"));
+    const myArtsGrid = document.getElementById("myArtsGrid");
+
+    console.log("User from localStorage:", user);
+
+    if (!user || !user.id) {
+        alert("Please login first");
+        window.location.href = "login.html";
+    }
+
+    async function loadMyArts() {
+        try {
+            const url = `http://localhost:5000/api/art/user/${user.id}`;
+            console.log("Fetching:", url);
+
+            const res = await fetch(url);
+
+            if (!res.ok) {
+                const text = await res.text();
+                console.error("Server error:", text);
+                alert("Failed to load arts");
+                return;
+            }
+
+            const arts = await res.json();
+            console.log("Arts received:", arts);
+
+            myArtsGrid.innerHTML = "";
+
+            if (arts.length === 0) {
+                myArtsGrid.innerHTML = "<p style='color:#ccc'>No artworks uploaded yet.</p>";
+                return;
+            }
+
+            arts.forEach(art => {
+                const card = document.createElement("div");
+                card.className = "art-card";
+
+                card.innerHTML = `
+                    <img src="http://localhost:5000/${art.image_url}" alt="${art.title}">
+                    <h3>${art.title}</h3>
+                    <p>${art.description}</p>
+                `;
+
+                myArtsGrid.appendChild(card);
+            });
+
+        } catch (err) {
+            console.error("Error loading my arts:", err);
+            alert("Error loading arts. Check console.");
+        }
+    }
+
+    loadMyArts();
+</script>
+
+</body>
+</html>

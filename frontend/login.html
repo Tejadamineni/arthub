@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ArtHub - Login</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .auth-box {
+            background-color: #1c1c1c;
+            padding: 30px;
+            border-radius: 10px;
+            width: 350px;
+        }
+
+        .auth-box h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .auth-box input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .auth-box button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: #ff4d4d;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .auth-box button:hover {
+            background-color: #ff2e2e;
+        }
+
+        .auth-box p {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .auth-box span {
+            color: #ff4d4d;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="auth-container">
+    <div class="auth-box">
+        <h2 id="formTitle">Login</h2>
+
+        <input type="text" id="nameField" placeholder="Name" style="display:none;">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+
+        <button onclick="handleAuth()">Login</button>
+
+        <p id="toggleText">
+            Don't have an account? <span onclick="toggleForm()">Register</span>
+        </p>
+    </div>
+</div>
+
+<script>
+    let isLogin = true;
+
+    function toggleForm() {
+        isLogin = !isLogin;
+
+        const title = document.getElementById("formTitle");
+        const nameField = document.getElementById("nameField");
+        const button = document.querySelector("button");
+        const toggleText = document.getElementById("toggleText");
+
+        if (isLogin) {
+            title.innerText = "Login";
+            nameField.style.display = "none";
+            button.innerText = "Login";
+            toggleText.innerHTML = `Don't have an account? <span onclick="toggleForm()">Register</span>`;
+        } else {
+            title.innerText = "Register";
+            nameField.style.display = "block";
+            button.innerText = "Register";
+            toggleText.innerHTML = `Already have an account? <span onclick="toggleForm()">Login</span>`;
+        }
+    }
+
+    async function handleAuth() {
+    const name = document.getElementById("nameField").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    if (!email || !password || (!isLogin && !name)) {
+        alert("Please fill all fields");
+        return;
+    }
+
+    try {
+        if (isLogin) {
+            const res = await fetch("http://localhost:5000/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert(data.message);
+                return;
+            }
+
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", JSON.stringify(data.user));
+
+            alert("Login successful");
+            window.location.href = "index.html";
+
+        } else {
+            const res = await fetch("http://localhost:5000/api/auth/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, password })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert(data.message);
+                return;
+            }
+
+            alert("Registration successful. Please login.");
+            toggleForm();
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Server error");
+    }
+}
+
+</script>
+
+</body>
+</html>

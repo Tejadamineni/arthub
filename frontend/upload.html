@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ArtHub - Upload Art</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .upload-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .upload-box {
+            background-color: #1c1c1c;
+            padding: 30px;
+            border-radius: 10px;
+            width: 400px;
+        }
+
+        .upload-box h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .upload-box input,
+        .upload-box textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .upload-box button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: #ff4d4d;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .upload-box button:hover {
+            background-color: #ff2e2e;
+        }
+
+        .preview-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="upload-container">
+    <div class="upload-box">
+        <h2>Upload Artwork</h2>
+
+        <input type="text" id="title" placeholder="Artwork Title">
+        <textarea id="description" rows="3" placeholder="Description"></textarea>
+        <input type="file" id="imageInput" accept="image/*">
+        <img id="preview" class="preview-img">
+
+        <button onclick="uploadArt()">Upload</button>
+    </div>
+</div>
+
+<script>
+    const imageInput = document.getElementById("imageInput");
+    const preview = document.getElementById("preview");
+
+    imageInput.addEventListener("change", () => {
+        const file = imageInput.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                preview.src = reader.result;
+                preview.style.display = "block";
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+   async function uploadArt() {
+    const title = document.getElementById("title").value;
+    const description = document.getElementById("description").value;
+    const image = imageInput.files[0];
+
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!user) {
+        alert("Please login first");
+        window.location.href = "login.html";
+        return;
+    }
+
+    if (!title || !description || !image) {
+        alert("Please fill all fields");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("user_id", user.id);
+    formData.append("image", image);
+
+    try {
+        const res = await fetch("http://localhost:5000/api/art/upload", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            alert(data.message);
+            return;
+        }
+
+        alert("Artwork uploaded successfully!");
+        window.location.href = "index.html";
+
+    } catch (err) {
+        console.error(err);
+        alert("Upload failed");
+    }
+}
+
+</script>
+
+</body>
+</html>

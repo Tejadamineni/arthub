@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - ArtHub</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .dash-container {
+            padding: 40px;
+        }
+
+        .dash-box {
+            background-color: #1c1c1c;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            margin: auto;
+        }
+
+        .dash-box h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .dash-box button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: none;
+            background-color: #ff4d4d;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .dash-box button:hover {
+            background-color: #ff2e2e;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="logo">ArtHub</div>
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+    </div>
+</div>
+
+<div class="dash-container">
+    <div class="dash-box">
+        <h2>My Dashboard</h2>
+
+        <button onclick="goProfile()">Profile</button>
+        <button onclick="goMyArts()">My Arts</button>
+        <button onclick="goUpload()">Upload Art</button>
+        <button onclick="logout()">Logout</button>
+        <button onclick="deleteAccount()" style="background:#aa0000;">Delete Account</button>
+    </div>
+</div>
+
+<script>
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!user) {
+        alert("Please login first");
+        window.location.href = "login.html";
+    }
+
+    function goProfile() {
+        alert("Profile page coming next 😎");
+    }
+
+    function goMyArts() {
+        window.location.href = "myarts.html";
+    }
+
+    function goUpload() {
+        window.location.href = "upload.html";
+    }
+
+    function logout() {
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        alert("Logged out successfully");
+        window.location.href = "index.html";
+    }
+
+    async function deleteAccount() {
+        const confirmDelete = confirm("Are you sure you want to delete your account? This cannot be undone!");
+
+        if (!confirmDelete) return;
+
+        try {
+            const res = await fetch(`http://localhost:5000/api/auth/delete/${user.id}`, {
+                method: "DELETE"
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert(data.message);
+                return;
+            }
+
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+
+            alert("Account deleted successfully");
+            window.location.href = "index.html";
+
+        } catch (err) {
+            console.error(err);
+            alert("Delete failed");
+        }
+    }
+</script>
+
+</body>
+</html>
