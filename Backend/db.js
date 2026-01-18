@@ -1,18 +1,19 @@
 const mysql = require("mysql2");
 
 const db = mysql.createConnection({
-    host: "sql5.freesqldatabase.com",
-    user: "sql5813693",
-    password: "EIX5T7qTVT",
-    database: "sql5813693"
+  host: process.env.MYSQL_HOST,
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE,
+  port: process.env.MYSQL_PORT,
 });
 
 db.connect((err) => {
-    if (err) {
-        console.error("Database connection failed:", err);
-    } else {
-        console.log("MySQL Connected...");
-    }
+  if (err) {
+    console.error("MySQL connection failed:", err);
+    return;
+  }
+  console.log("MySQL Connected to AWS RDS ✅");
 });
 
 module.exports = db;

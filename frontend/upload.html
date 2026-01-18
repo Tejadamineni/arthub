@@ -89,53 +89,53 @@
         }
     });
 
-   async function uploadArt() {
-    const title = document.getElementById("title").value;
-    const description = document.getElementById("description").value;
-    const image = imageInput.files[0];
+    async function uploadArt() {
+        const title = document.getElementById("title").value;
+        const description = document.getElementById("description").value;
+        const image = imageInput.files[0];
 
-    const user = JSON.parse(localStorage.getItem("user"));
+        const user = JSON.parse(localStorage.getItem("user"));
 
-    if (!user) {
-        alert("Please login first");
-        window.location.href = "login.html";
-        return;
-    }
-
-    if (!title || !description || !image) {
-        alert("Please fill all fields");
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("user_id", user.id);
-    formData.append("image", image);
-
-    try {
-        const res = await fetch("https://arthub-backend-gbe7.onrender.com/api/art/upload", {
-            method: "POST",
-            body: formData
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-            alert(data.message);
+        if (!user) {
+            alert("Please login first");
+            window.location.href = "login.html";
             return;
         }
 
-        alert("Artwork uploaded successfully!");
-        window.location.href = "index.html";
+        if (!title || !description || !image) {
+            alert("Please fill all fields");
+            return;
+        }
 
-    } catch (err) {
-        console.error(err);
-        alert("Upload failed");
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("description", description);
+        formData.append("user_id", user.id);
+        formData.append("image", image); // 👈 MUST be "image"
+
+        try {
+            const res = await fetch("https://arthub-backend-gbe7.onrender.com/api/art/upload", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert(data.message || "Upload failed");
+                return;
+            }
+
+            alert("Artwork uploaded successfully!");
+            window.location.href = "index.html";
+
+        } catch (err) {
+            console.error("Upload error:", err);
+            alert("Upload failed");
+        }
     }
-}
-
 </script>
+
 
 </body>
 </html>
