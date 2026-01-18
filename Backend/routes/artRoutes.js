@@ -1,99 +1,67 @@
+require("dotenv").config();
 const express = require("express");
 const multer = require("multer");
-const db = require("../db");
-
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const db = require("../db");
 
 const router = express.Router();
 
-/* ================= AWS S3 CONFIG ================= */
-
+// AWS S3 client
 const s3 = new S3Client({
-    region: process.env.AWS_REGION,
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    }
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
 });
 
-/* ================= MULTER CONFIG ================= */
-// Store file in memory (NOT disk)
+// Multer memory storage
 const upload = multer({ storage: multer.memoryStorage() });
 
-/* ================= UPLOAD ARTWORK ================= */
-
+// 🔥 Upload artwork
 router.post("/upload", upload.single("image"), async (req, res) => {
-    try {
-        const { title, description, user_id } = req.body;
-        const file = req.file;
+  try {
+    const { title, description, user_id } = req.body;
+    const file = req.file;
 
-        if (!title || !description || !file) {
-            return res.status(400).json({ message: "All fields required" });
-        }
-
-        const fileName = Date.now() + "-" + file.originalname;
-
-        // Upload to S3
-        const command = new PutObjectCommand({
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: fileName,
-            Body: file.buffer,
-            ContentType: file.mimetype
-        });
-
-        await s3.send(command);
-
-        const image_url = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
-
-        const sql =
-            "INSERT INTO artworks (user_id, title, description, image_url) VALUES (?, ?, ?, ?)";
-
-        db.query(sql, [user_id, title, description, image_url], (err) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({ message: "Upload failed" });
-            }
-
-            res.json({
-                message: "Artwork uploaded successfully",
-                image_url
-            });
-        });
-
-    } catch (error) {
-        console.error("S3 Upload Error:", error);
-        res.status(500).json({ message: "Upload failed" });
+    if (!title || !description || !file) {
+      return res.status(400).json({ message: "All fields required" });
     }
-});
 
-/* ================= GET ALL ARTWORKS ================= */
+    const fileName = Date.now() + "_" + file.originalname;
 
-router.get("/all", (req, res) => {
-    const sql = "SELECT * FROM artworks ORDER BY created_at DESC";
-    db.query(sql, (err, result) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).json({ message: "Error fetching artworks" });
-        }
-        res.json(result);
+    const command = new PutObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileName,
+      Body: file.buffer,
+      ContentType: file.mimetype,
     });
-});
 
-/* ================= GET USER ARTWORKS ================= */
+    await s3.send(command);
 
-router.get("/user/:id", (req, res) => {
-    const userId = req.params.id;
+    const imageUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
 
-    const sql =
-        "SELECT * FROM artworks WHERE user_id = ? ORDER BY created_at DESC";
+    const sql = `
+      INSERT INTO artworks (user_id, title, description, image_url)
+      VALUES (?, ?, ?, ?)
+    `;
 
-    db.query(sql, [userId], (err, result) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).json({ message: "Error fetching user artworks" });
-        }
-        res.json(result);
+    db.query(sql, [user_id, title, description, imageUrl], (err) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Database error" });
+      }
+
+      res.json({
+        message: "Artwork uploaded successfully",
+        imageUrl,
+      });
     });
+
+  } catch (err) {
+    console.error("Upload error:", err);
+    res.status(500).json({ message: "Upload failed" });
+  }
 });
 
 module.exports = router;
